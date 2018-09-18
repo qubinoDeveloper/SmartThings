@@ -604,6 +604,27 @@ def roundToHalf(val){
 /*
 *	--------	HANDLE COMMANDS SECTION	--------
 */
+
+def setHeatingSetpoint(temp) {
+	log.debug "heat internal"
+    def cmds = []
+    if(location.temperatureScale == "C"){
+		cmds << zwave.thermostatSetpointV2.thermostatSetpointSet(precision: 1, scale: 0, scaledValue: temp, setpointType: 1, size: 2).format()
+	}else{
+		cmds << zwave.thermostatSetpointV2.thermostatSetpointSet(precision: 1, scale: 1, scaledValue: temp, setpointType: 1, size: 2).format()
+	}
+    return delayBetween(cmds, 250)
+}
+def setCoolingSetpoint(temp) {
+	log.debug "cool internal"
+    def cmds = []
+    if(location.temperatureScale == "C"){
+		cmds << zwave.thermostatSetpointV2.thermostatSetpointSet(precision: 1, scale: 0, scaledValue: temp, setpointType: 2, size: 2).format()
+	}else{
+		cmds << zwave.thermostatSetpointV2.thermostatSetpointSet(precision: 1, scale: 1, scaledValue: temp, setpointType: 2, size: 2).format()
+	}
+    return delayBetween(cmds, 250)
+}
 /**
  * Function that is used to change the current Thermostat Mode.
  *
