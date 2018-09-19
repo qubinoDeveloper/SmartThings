@@ -1,8 +1,8 @@
 /**
  *  Qubino Flush On Off Thermostat
  *	Device Handler 
- *	Version 0.991
- *  Date: 18. 09. 2018
+ *	Version 0.992
+ *  Date: 12.12.2017
  *	Author: Kristjan Jam&scaron;ek (Kjamsek), Goap d.o.o.
  *  Copyright 2017 Kristjan Jam&scaron;ek
  *
@@ -33,7 +33,6 @@
  *	CHANGELOG:
  *	0.98: Final release code cleanup and commenting
  *	0.99: Added comments to code for readability
- *	0.991: Added classic app automation function calls
  */
 metadata {
 	definition (name: "Qubino On Off Thermostat", namespace: "Goap", author: "Kristjan Jam&scaron;ek") {
@@ -605,25 +604,38 @@ def roundToHalf(val){
 /*
 *	--------	HANDLE COMMANDS SECTION	--------
 */
-
+/**
+ * Function that is used for automation apps to set a heating setpoint in parallel to the standard tile functionality.
+ *
+ * @param temp - numeric value of the desired heating setpoint
+ * List of commands that will be executed in sequence with 250 ms delay inbetween.
+*/
 def setHeatingSetpoint(temp) {
-	log.debug "heat internal"
     def cmds = []
     if(location.temperatureScale == "C"){
 		cmds << zwave.thermostatSetpointV2.thermostatSetpointSet(precision: 1, scale: 0, scaledValue: temp, setpointType: 1, size: 2).format()
 	}else{
 		cmds << zwave.thermostatSetpointV2.thermostatSetpointSet(precision: 1, scale: 1, scaledValue: temp, setpointType: 1, size: 2).format()
 	}
+    cmds << zwave.thermostatSetpointV2.thermostatSetpointGet(setpointType: 1).format()
+    cmds << zwave.thermostatModeV2.thermostatModeGet().format()
     return delayBetween(cmds, 250)
 }
+/**
+ * Function that is used for automation apps to set a cooling setpoint in parallel to the standard tile functionality.
+ *
+ * @param temp - numeric value of the desired cooling setpoint
+ * List of commands that will be executed in sequence with 250 ms delay inbetween.
+*/
 def setCoolingSetpoint(temp) {
-	log.debug "cool internal"
     def cmds = []
     if(location.temperatureScale == "C"){
 		cmds << zwave.thermostatSetpointV2.thermostatSetpointSet(precision: 1, scale: 0, scaledValue: temp, setpointType: 2, size: 2).format()
 	}else{
 		cmds << zwave.thermostatSetpointV2.thermostatSetpointSet(precision: 1, scale: 1, scaledValue: temp, setpointType: 2, size: 2).format()
 	}
+    cmds << zwave.thermostatSetpointV2.thermostatSetpointGet(setpointType: 2).format()
+    cmds << zwave.thermostatModeV2.thermostatModeGet().format()
     return delayBetween(cmds, 250)
 }
 /**
@@ -669,7 +681,9 @@ def modeSetting() {
  * @return void
 */
 def tempUp() {
+	log.debug "tempUp call"
 	def spIncrease = roundToHalf(device.currentValue("thermostatSetpoint")) + 0.5
+    log.debug spDecrease
 	setSpValue(spIncrease)
 }
 /**
@@ -679,7 +693,9 @@ def tempUp() {
  * @return void
 */
 def tempDown() {
+	log.debug "tempDown call"
 	def spDecrease = roundToHalf(device.currentValue("thermostatSetpoint")) - 0.5
+    log.debug spDecrease
 	setSpValue(spDecrease)
 }
 /**
