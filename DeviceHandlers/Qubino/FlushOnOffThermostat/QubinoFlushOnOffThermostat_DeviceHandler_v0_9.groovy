@@ -1,8 +1,8 @@
 /**
  *  Qubino Flush On Off Thermostat
  *	Device Handler 
- *	Version 0.992
- *  Date: 12.12.2017
+ *	Version 0.991
+ *  Date: 19.09.2018
  *	Author: Kristjan Jam&scaron;ek (Kjamsek), Goap d.o.o.
  *  Copyright 2017 Kristjan Jam&scaron;ek
  *
